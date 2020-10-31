@@ -10,7 +10,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 from pymsgbox import alert
 
-from database import *
+from database import get_cnx_and_cursor, parse_cursor_to_array, parse_cursor_to_dict
+from messaging import Message, wrong_values_in_inputs
+
+import sys
 
 order_number = 0
 
@@ -102,7 +105,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Фотостанция"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Фотоателье"))
         self.pushButton_4.setText(_translate("MainWindow", "Выйти из аккаунта"))
         self.pushButton_6.setText(_translate("MainWindow", "Закрыть смену"))
         self.pushButton.setText(_translate("MainWindow", "Создать заказ"))
@@ -177,7 +180,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
     def retranslateNewUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Фотостанция"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Фотоателье"))
         self.groupBox.setTitle(_translate("MainWindow", "Ассортимент"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Содержимое заказа"))
         self.pushButton.setText(_translate("MainWindow", "Отмена"))
@@ -308,7 +311,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
     def retranslateOrdersUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Фотостанция"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Фотоателье"))
         self.label.setText(_translate("MainWindow", ""))
 
         cnx, cursor = get_cnx_and_cursor()
@@ -378,7 +381,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
     def retranslatePayUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Фотостанция"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Фотоателье"))
         self.label.setText(_translate("MainWindow", "Сумма"))
         self.pushButton.setText(_translate("MainWindow", "Оплатить"))
 
@@ -489,7 +492,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
     def retranslateLoginUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
-        Main.setWindowTitle(_translate("Main", "Фотостанция"))
+        Main.setWindowTitle(_translate("Main", "Фотоателье"))
         self.label_2.setText(_translate("Main", "Логин"))
         self.label_3.setText(_translate("Main", "Пароль"))
         self.pushButton.setText(_translate("Main", "Войти"))
@@ -511,17 +514,18 @@ class Ui_MainWindow(QtWidgets.QWidget):
             cursor.execute(query, data)
 
             if cursor.rowcount == 0:
-                Message.show(Message, "Ошибка", "Проверьте правильность введеных данных")
+                wrong_values_in_inputs()
 
-            for item in cursor:
-                for value in item:
-                    value = str(value)
-                    if value == password:
+                try:
+                    if cursor.fetchone()[0] == password:
                         self.setupUi()
                     else:
-                        Message.show(Message, "Ошибка", "Проверьте правильность введеных данных")
+                        wrong_values_in_inputs()
+                except TypeError:
+                    wrong_values_in_inputs()
+
         else:
-            Message.show(Message, "Ошибка", "Проверьте правильность введеных данных")
+            wrong_values_in_inputs()
 
     def setupOldOrdersUi(self):
         MainWindow.setObjectName("MainWindow")
@@ -598,18 +602,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.gridLayout.addWidget(back_button, i, j, 1, 1)
 
 
-class Message(object):
-    def show(self, Title, Text):
-        msgbox = QtWidgets.QMessageBox()
-        msgbox.setWindowTitle(Title)
-        msgbox.setWindowIcon(QtGui.QIcon(QtGui.QPixmap('icons/i.png')))
-        msgbox.setText(Text)
-        msgbox.exec()
-
-
 if __name__ == "__main__":
-    import sys
-
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle("Fusion")
     MainWindow = QtWidgets.QMainWindow()
