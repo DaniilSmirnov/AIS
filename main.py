@@ -11,6 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from pymsgbox import alert
 
 from database import *
+
 order_number = 0
 
 
@@ -206,15 +207,17 @@ class Ui_MainWindow(QtWidgets.QWidget):
             for i in reversed(range(self.verticalLayout.count())):
                 self.verticalLayout.itemAt(i).widget().deleteLater()
 
+            cnx, cursor = get_cnx_and_cursor()
+
             query = "select product from product where category = %s;"
             data = (item,)
             cursor.execute(query, data)
 
-            for item in cursor:
-                for value in item:
-                    button = QtWidgets.QPushButton(str(value))
-                    self.verticalLayout.addWidget(button)
-                    button.clicked.connect(lambda state, pos=str(value): add(pos))
+            products = parse_cursor_to_array()
+            for product in products:
+                button = QtWidgets.QPushButton(str(product))
+                self.verticalLayout.addWidget(button)
+                button.clicked.connect(lambda state, pos=str(product): add(pos))
 
             back_button = QtWidgets.QPushButton("Назад")
             back_button.clicked.connect(draw_categories)
@@ -540,7 +543,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
     def retranslateOldOrdersUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Фотостанция"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Фотоателье"))
         self.label.setText(_translate("MainWindow", ""))
 
         query = "select * from orders where closed_date is not null;"
