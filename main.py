@@ -190,7 +190,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         def draw_categories():
 
             cnx, cursor = get_cnx_and_cursor()
-            query = "SELECT distinct category from product;"
+            query = "SELECT * from categories;"
             cursor.execute(query)
 
             for i in reversed(range(self.verticalLayout.count())):
@@ -198,9 +198,10 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
             categories = parse_cursor_to_array(cursor.column_names, cursor)
             for category in categories:
-                button = QtWidgets.QPushButton(str(category))
+                category = category.get('category')
+                button = QtWidgets.QPushButton(str(category.get('name')))
                 self.verticalLayout.addWidget(button)
-                button.clicked.connect(lambda state, pos=str(category): draw_items(pos))
+                button.clicked.connect(lambda state, pos=category.get('id_category'): draw_items(pos))
 
         def draw_items(item):
 
@@ -209,7 +210,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
             cnx, cursor = get_cnx_and_cursor()
 
-            query = "select product from product where category = %s;"
+            query = "select product from product where id_category = %s;"
             data = (item,)
             cursor.execute(query, data)
 
@@ -225,7 +226,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
         def add(item):
             order.append(item)
-
             draw_order()
 
         def draw_order():
@@ -240,20 +240,24 @@ class Ui_MainWindow(QtWidgets.QWidget):
                 self.orderlayout.addWidget(button, i, 0, 1, 1)
                 query = "select price from product where product = %s"
                 data = (pos,)
+                cnx, cursor = get_cnx_and_cursor()
+
                 cursor.execute(query, data)
-                for item in cursor:
-                    for value in item:
-                        total += float(value)
-                        self.orderlayout.addWidget(QtWidgets.QLabel(str(value) + " Р"), i, 1, 1, 1)
-                i += 1
+
+                price = cursor.fetchone()[0]
+                total += price
+                self.orderlayout.addWidget(QtWidgets.QLabel(str(price) + " Р"), i, 1, 1, 1)
 
                 self.orderlayout.addWidget(QtWidgets.QLabel("Итого " + str(total) + " Р"), i, 0, 1, 1)
 
         draw_categories()
 
         def create():
+            cnx, cursor = get_cnx_and_cursor()
+
             query = "insert into orders values (default, 1, null, now(), null)"
             cursor.execute(query)
+            cnx.commit()
 
             query = "select idorder from orders order by idorder desc limit 1;"
             cursor.execute(query)
@@ -269,7 +273,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
             cnx.commit()
 
-            alert("Заказ создан", "Инфо")
+            alert("Заказ создан", "Информация")
 
             self.setupUi()
 
@@ -307,7 +311,9 @@ class Ui_MainWindow(QtWidgets.QWidget):
         MainWindow.setWindowTitle(_translate("MainWindow", "Фотостанция"))
         self.label.setText(_translate("MainWindow", ""))
 
-        query = "select idorder,open_date from orders where closed_date is null;"
+        cnx, cursor = get_cnx_and_cursor()
+
+        query = "select id_order,open_date from orders where closed_date is null;"
         cursor.execute(query)
 
         i = 1
@@ -377,8 +383,9 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.pushButton.setText(_translate("MainWindow", "Оплатить"))
 
         global order_number
+        cnx, cursor = get_cnx_and_cursor()
 
-        query = "select sum(price) from product,order_content where product.product=order_content.idproduct && idorder = %s;"
+        query = "select sum(price) from product,order_content where product.product=order_content.id_product && id_order = %s;"
         data = (str(order_number),)
 
         cursor.execute(query, data)
@@ -497,6 +504,8 @@ class Ui_MainWindow(QtWidgets.QWidget):
             card = self.lineEdit.text()
             password = self.lineEdit_2.text()
 
+            cnx, cursor = get_cnx_and_cursor()
+
             query = "select password from worker where login = %s;"
             data = (card,)
             cursor.execute(query, data)
@@ -545,6 +554,8 @@ class Ui_MainWindow(QtWidgets.QWidget):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Фотоателье"))
         self.label.setText(_translate("MainWindow", ""))
+
+        cnx, cursor = get_cnx_and_cursor()
 
         query = "select * from orders where closed_date is not null;"
         cursor.execute(query)

@@ -75,13 +75,19 @@ DROP TABLE IF EXISTS `product`;
 CREATE TABLE `product` (
   `id_product` int(11) NOT NULL,
   `amount` int(11) NOT NULL,
-  `category` varchar(45) NOT NULL,
+  `id_category` int(11) NOT NULL,
   `price` float NOT NULL,
   `product` varchar(45) NOT NULL,
   PRIMARY KEY (`id_product`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+CREATE TABLE `categories` (
+  `id_category` int(11) NOT NULL,
+  `name` varchar(45) NOT NULL
+  PRIMARY KEY (`id_category`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 --
 -- Dumping data for table `product`
 --
