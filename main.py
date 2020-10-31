@@ -503,7 +503,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.pushButton.clicked.connect(self.login)
 
     def login(self):
-        if self.lineEdit.text() != " " and self.lineEdit_2.text() != " " and self.lineEdit.text() != "" and self.lineEdit_2.text() != "":
+        if self.lineEdit.text().isspace() or self.lineEdit_2.text().isspace():
             card = self.lineEdit.text()
             password = self.lineEdit_2.text()
 
@@ -513,16 +513,14 @@ class Ui_MainWindow(QtWidgets.QWidget):
             data = (card,)
             cursor.execute(query, data)
 
-            if cursor.rowcount == 0:
-                wrong_values_in_inputs()
-
-                try:
-                    if cursor.fetchone()[0] == password:
-                        self.setupUi()
-                    else:
-                        wrong_values_in_inputs()
-                except TypeError:
+            try:
+                if cursor.rowcount == 0 and cursor.fetchone()[0] == password:
                     wrong_values_in_inputs()
+                else:
+                    self.setupUi()
+
+            except TypeError:
+                wrong_values_in_inputs()
 
         else:
             wrong_values_in_inputs()
