@@ -486,6 +486,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.lineEdit_2.setEchoMode(QtWidgets.QLineEdit.Password)
 
         self.retranslateLoginUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -498,106 +499,103 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.pushButton.setText(_translate("Main", "Войти"))
         self.label.setText(_translate("Main", "Вход"))
 
-        self.lineEdit_2.setEchoMode(QtWidgets.QLineEdit.Password)
-
         self.pushButton.clicked.connect(self.login)
 
     def login(self):
-        if self.lineEdit.text().isspace() or self.lineEdit_2.text().isspace():
-            card = self.lineEdit.text()
-            password = self.lineEdit_2.text()
-
+        card = self.lineEdit.text()
+        password = self.lineEdit_2.text()
+        try:
             cnx, cursor = get_cnx_and_cursor()
-
             query = "select password from worker where login = %s;"
             data = (card,)
             cursor.execute(query, data)
+        except Exception:
+            return 0
 
-            try:
-                if cursor.rowcount == 0 and cursor.fetchone()[0] == password:
-                    wrong_values_in_inputs()
-                else:
-                    self.setupUi()
-
-            except TypeError:
+        try:
+            if cursor.rowcount == 0 and cursor.fetchone()[0] == password:
                 wrong_values_in_inputs()
+            else:
+                self.setupUi()
 
-        else:
+        except TypeError:
             wrong_values_in_inputs()
 
-    def setupOldOrdersUi(self):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(457, 420)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
-        self.gridLayout.setObjectName("gridLayout")
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
-        self.label.setSizePolicy(sizePolicy)
-        self.label.setObjectName("label")
-        self.gridLayout.addWidget(self.label, 0, 0, 1, 2)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 457, 21))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
 
-        self.retranslateOldOrdersUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+def setupOldOrdersUi(self):
+    MainWindow.setObjectName("MainWindow")
+    MainWindow.resize(457, 420)
+    self.centralwidget = QtWidgets.QWidget(MainWindow)
+    self.centralwidget.setObjectName("centralwidget")
+    self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
+    self.gridLayout.setObjectName("gridLayout")
+    self.label = QtWidgets.QLabel(self.centralwidget)
+    sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+    sizePolicy.setHorizontalStretch(0)
+    sizePolicy.setVerticalStretch(0)
+    sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
+    self.label.setSizePolicy(sizePolicy)
+    self.label.setObjectName("label")
+    self.gridLayout.addWidget(self.label, 0, 0, 1, 2)
+    MainWindow.setCentralWidget(self.centralwidget)
+    self.menubar = QtWidgets.QMenuBar(MainWindow)
+    self.menubar.setGeometry(QtCore.QRect(0, 0, 457, 21))
+    self.menubar.setObjectName("menubar")
+    MainWindow.setMenuBar(self.menubar)
+    self.statusbar = QtWidgets.QStatusBar(MainWindow)
+    self.statusbar.setObjectName("statusbar")
+    MainWindow.setStatusBar(self.statusbar)
 
-    def retranslateOldOrdersUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Фотоателье"))
-        self.label.setText(_translate("MainWindow", ""))
+    self.retranslateOldOrdersUi(MainWindow)
+    QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-        cnx, cursor = get_cnx_and_cursor()
 
-        query = "select * from orders where closed_date is not null;"
-        cursor.execute(query)
+def retranslateOldOrdersUi(self, MainWindow):
+    _translate = QtCore.QCoreApplication.translate
+    MainWindow.setWindowTitle(_translate("MainWindow", "Фотоателье"))
+    self.label.setText(_translate("MainWindow", ""))
 
-        i = 1
+    cnx, cursor = get_cnx_and_cursor()
+
+    query = "select * from orders where closed_date is not null;"
+    cursor.execute(query)
+
+    i = 1
+    j = 0
+
+    def worker(id):
+        query = 'select name from worker where idworker = %s'
+        data = (id,)
+        cursor.execute(query, data)
+        for item in cursor:
+            for value in item:
+                return value
+
+    for item in cursor:
+        item_group = QtWidgets.QGroupBox("Заказ: " + str(item[0]))
+        categorieslayout = QtWidgets.QVBoxLayout(item_group)
+        self.gridLayout.addWidget(item_group, i, j, 1, 2)
+        item_group.clicked.connect(lambda: print(1))
+        for value in item:
+            if j == 0:
+                j += 1
+                id = value
+                continue
+            if j == 1:
+                categorieslayout.addWidget(QtWidgets.QLabel("Сотрудник " + str(worker(id))))
+            if j == 2:
+                categorieslayout.addWidget(QtWidgets.QLabel("Тип оплаты " + str(value)))
+            if j == 3:
+                categorieslayout.addWidget(QtWidgets.QLabel("Дата открытия " + str(value)))
+            if j == 4:
+                categorieslayout.addWidget(QtWidgets.QLabel("Дата закрытия " + str(value)))
+            j += 1
+        i += 1
         j = 0
 
-        def worker(id):
-            query = 'select name from worker where idworker = %s'
-            data = (id,)
-            cursor.execute(query, data)
-            for item in cursor:
-                for value in item:
-                    return value
-
-        for item in cursor:
-            item_group = QtWidgets.QGroupBox("Заказ: " + str(item[0]))
-            categorieslayout = QtWidgets.QVBoxLayout(item_group)
-            self.gridLayout.addWidget(item_group, i, j, 1, 2)
-            item_group.clicked.connect(lambda: print(1))
-            for value in item:
-                if j == 0:
-                    j += 1
-                    id = value
-                    continue
-                if j == 1:
-                    categorieslayout.addWidget(QtWidgets.QLabel("Сотрудник " + str(worker(id))))
-                if j == 2:
-                    categorieslayout.addWidget(QtWidgets.QLabel("Тип оплаты " + str(value)))
-                if j == 3:
-                    categorieslayout.addWidget(QtWidgets.QLabel("Дата открытия " + str(value)))
-                if j == 4:
-                    categorieslayout.addWidget(QtWidgets.QLabel("Дата закрытия " + str(value)))
-                j += 1
-            i += 1
-            j = 0
-
-        back_button = QtWidgets.QPushButton("Назад")
-        back_button.clicked.connect(self.setupUi)
-        self.gridLayout.addWidget(back_button, i, j, 1, 1)
+    back_button = QtWidgets.QPushButton("Назад")
+    back_button.clicked.connect(self.setupUi)
+    self.gridLayout.addWidget(back_button, i, j, 1, 1)
 
 
 if __name__ == "__main__":

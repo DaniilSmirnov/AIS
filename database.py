@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets
 
 import mysql.connector
 from pymsgbox import alert
+from messaging import missed_db
 
 
 def get_cnx_and_cursor():
@@ -12,18 +13,8 @@ def get_cnx_and_cursor():
 
         return cnx, cnx.cursor(buffered=True)
 
-    except BaseException as e:
-        import sys
-
-        app = QtWidgets.QApplication(sys.argv)
-        app.setStyle("Fusion")
-        msgbox = QtWidgets.QMessageBox()
-        msgbox.setWindowTitle("Ошибка соединения с базой данных")
-        msgbox.setWindowIcon(QtGui.QIcon(QtGui.QPixmap('icons/x.png')))
-        msgbox.setText('Проверьте подключение к Базе Данных')
-        msgbox.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
-        msgbox.setDetailedText(str(e))
-        msgbox.exec()
+    except Exception:
+        missed_db()
 
 
 def parse_cursor_to_array(keys, cursor):

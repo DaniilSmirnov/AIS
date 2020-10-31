@@ -12,3 +12,7 @@ class Message(object):
 
 def wrong_values_in_inputs():
     Message.show(Message, "Ошибка", "Проверьте правильность введеных данных")
+
+
+def missed_db():
+    Message.show(Message, "Ошибка", "Нет соединения с базой данных")
