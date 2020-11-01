@@ -393,11 +393,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
         cursor.execute(query, data)
 
-        for item in cursor:
-            for value in item:
-                value = int(value)
-
-        self.label.setText("К оплате " + str(int(value)))
+        self.label.setText("К оплате " + str(cursor.fetchone()[0]))
 
         self.comboBox.addItem("Наличные")
         self.comboBox.addItem("Карта")
@@ -413,8 +409,9 @@ class Ui_MainWindow(QtWidgets.QWidget):
             if self.comboBox.currentIndex() == 1:
                 data = ("Card", order_number)
 
-            # query = "update order set pay_type = %s, closed_date = now() where idorder = %s"
-            # cursor.execute(query, data)
+            query = "update order set pay_type = %s, closed_date = now() where id_order = %s"
+            cursor.execute(query, data)
+            cnx.commit()
 
             alert("Заказ оплачен. Не забудьте выдать сдачу", "Инфо")
 
@@ -567,9 +564,8 @@ def retranslateOldOrdersUi(self, MainWindow):
         query = 'select name from worker where idworker = %s'
         data = (id,)
         cursor.execute(query, data)
-        for item in cursor:
-            for value in item:
-                return value
+
+        return cursor.fetchone()[0]
 
     for item in cursor:
         item_group = QtWidgets.QGroupBox("Заказ: " + str(item[0]))
