@@ -8,10 +8,8 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from pymsgbox import alert
-
 from database import get_cnx_and_cursor, parse_cursor_to_array, parse_cursor_to_dict
-from messaging import Message, wrong_values_in_inputs
+from messaging import wrong_values_in_inputs, show_info_message
 
 import sys
 
@@ -126,22 +124,10 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.pushButton_5.clicked.connect(self.setupOldOrdersUi)
 
     def xdata(self):
-        msgbox = QtWidgets.QMessageBox()
-        msgbox.setWindowTitle("Чековый принтер не подключен")
-        msgbox.setWindowIcon(QtGui.QIcon(QtGui.QPixmap('icons/x.png')))
-        msgbox.setText('Проверьте подключение к чековому принтеру')
-        msgbox.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
-        # msgbox.setDetailedText(str(e))
-        msgbox.exec()
+        show_info_message('Чековый принтер не подключен')
 
     def closeday(self):
-        msgbox = QtWidgets.QMessageBox()
-        msgbox.setWindowTitle("Чековый принтер не подключен")
-        msgbox.setWindowIcon(QtGui.QIcon(QtGui.QPixmap('icons/x.png')))
-        msgbox.setText('Проверьте подключение к чековому принтеру')
-        msgbox.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
-        # msgbox.setDetailedText(str(e))
-        msgbox.exec()
+        show_info_message('Чековый принтер не подключен')
 
     def setupNewUi(self):
         MainWindow.setObjectName("MainWindow")
@@ -276,7 +262,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
             cnx.commit()
 
-            alert("Заказ создан", "Информация")
+            show_info_message('Заказ создан')
 
             self.setupUi()
 
@@ -385,18 +371,18 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.label.setText(_translate("MainWindow", "Сумма"))
         self.pushButton.setText(_translate("MainWindow", "Оплатить"))
 
+        self.comboBox.addItem("Наличные")
+        self.comboBox.addItem("Карта")
+
         global order_number
         cnx, cursor = get_cnx_and_cursor()
 
         query = "select sum(price) from product,order_content where product.product=order_content.id_product && id_order = %s;"
-        data = (str(order_number),)
+        data = (order_number,)
 
         cursor.execute(query, data)
 
         self.label.setText("К оплате " + str(cursor.fetchone()[0]))
-
-        self.comboBox.addItem("Наличные")
-        self.comboBox.addItem("Карта")
 
         back_button = QtWidgets.QPushButton("Назад")
         back_button.clicked.connect(self.setupOrdersUi)
@@ -413,7 +399,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
             cursor.execute(query, data)
             cnx.commit()
 
-            alert("Заказ оплачен. Не забудьте выдать сдачу", "Инфо")
+            show_info_message('Заказ оплачен')
 
             self.setupUi()
 

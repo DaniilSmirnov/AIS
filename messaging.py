@@ -16,3 +16,7 @@ def wrong_values_in_inputs():
 
 def missed_db():
     Message.show(Message, "Ошибка", "Нет соединения с базой данных")
+
+
+def show_info_message(text):
+    Message.show(Message, 'Информация', text)
