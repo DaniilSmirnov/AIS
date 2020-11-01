@@ -521,7 +521,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.retranslateOldOrdersUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-
     def retranslateOldOrdersUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Фотоателье"))
@@ -539,34 +538,25 @@ class Ui_MainWindow(QtWidgets.QWidget):
             query = 'select name from worker where idworker = %s'
             data = (id,)
             cursor.execute(query, data)
-
             return cursor.fetchone()[0]
 
-        for item in cursor:
-            item_group = QtWidgets.QGroupBox("Заказ: " + str(item[0]))
+        orders = parse_cursor_to_array(cursor.column_names, cursor)
+
+        for order in orders:
+            id = order.get('id_order')
+            item_group = QtWidgets.QGroupBox("Заказ: " + str(id))
             categorieslayout = QtWidgets.QVBoxLayout(item_group)
             self.gridLayout.addWidget(item_group, i, j, 1, 2)
             item_group.clicked.connect(lambda: print(1))
-            for value in item:
-                if j == 0:
-                    j += 1
-                    id = value
-                    continue
-                if j == 1:
-                    categorieslayout.addWidget(QtWidgets.QLabel("Сотрудник " + str(worker(id))))
-                if j == 2:
-                    categorieslayout.addWidget(QtWidgets.QLabel("Тип оплаты " + str(value)))
-                if j == 3:
-                    categorieslayout.addWidget(QtWidgets.QLabel("Дата открытия " + str(value)))
-                if j == 4:
-                    categorieslayout.addWidget(QtWidgets.QLabel("Дата закрытия " + str(value)))
-                j += 1
-            i += 1
-            j = 0
+            categorieslayout.addWidget(QtWidgets.QLabel("Сотрудник " + str(worker(id))))
+            categorieslayout.addWidget(QtWidgets.QLabel("Тип оплаты " + str(order.get('pay_type'))))
+            categorieslayout.addWidget(QtWidgets.QLabel("Дата открытия " + str(order.get('open_date'))))
+            categorieslayout.addWidget(QtWidgets.QLabel("Дата закрытия " + str(order.get('close_date'))))
+        i += 1
 
         back_button = QtWidgets.QPushButton("Назад")
         back_button.clicked.connect(self.setupUi)
-        self.gridLayout.addWidget(back_button, i, j, 1, 1)
+        self.gridLayout.addWidget(back_button, i, 1, 1, 1)
 
 
 if __name__ == "__main__":
