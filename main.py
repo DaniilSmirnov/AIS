@@ -251,9 +251,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
             query = "select idorder from orders order by idorder desc limit 1;"
             cursor.execute(query)
 
-            for item in cursor:
-                for value in item:
-                    number = str(value)
+            number = cursor.fetchone()[0]
 
             for item in order:
                 query = "insert into order_content values (%s, %s)"
