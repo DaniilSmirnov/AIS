@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'main.ui'
-#
-# Created by: PyQt5 UI code generator 5.12.2
-#
-# WARNING! All changes made in this file will be lost!
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from database import get_cnx_and_cursor, parse_cursor_to_array, parse_cursor_to_dict
@@ -108,13 +100,13 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.pushButton_6.setText(_translate("MainWindow", "Закрыть смену"))
         self.pushButton.setText(_translate("MainWindow", "Создать заказ"))
         self.pushButton_2.setText(_translate("MainWindow", "Неоплаченные заказы"))
+        self.pushButton_5.setText(_translate("MainWindow", "Архив"))
         self.pushButton_3.setText(_translate("MainWindow", "X отчет"))
         self.label.setText(_translate("MainWindow", " "))
 
         pixmap = QtGui.QPixmap("logo.png")
         self.label.setPixmap(pixmap)
 
-        self.pushButton_5.setText(_translate("MainWindow", "Архив"))
 
         self.pushButton_6.clicked.connect(self.closeday)
         self.pushButton.clicked.connect(self.setupNewUi)
@@ -502,80 +494,79 @@ class Ui_MainWindow(QtWidgets.QWidget):
         except TypeError:
             wrong_values_in_inputs()
 
+    def setupOldOrdersUi(self):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(457, 420)
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout.setObjectName("gridLayout")
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy)
+        self.label.setObjectName("label")
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 2)
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 457, 21))
+        self.menubar.setObjectName("menubar")
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
 
-def setupOldOrdersUi(self):
-    MainWindow.setObjectName("MainWindow")
-    MainWindow.resize(457, 420)
-    self.centralwidget = QtWidgets.QWidget(MainWindow)
-    self.centralwidget.setObjectName("centralwidget")
-    self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
-    self.gridLayout.setObjectName("gridLayout")
-    self.label = QtWidgets.QLabel(self.centralwidget)
-    sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
-    sizePolicy.setHorizontalStretch(0)
-    sizePolicy.setVerticalStretch(0)
-    sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
-    self.label.setSizePolicy(sizePolicy)
-    self.label.setObjectName("label")
-    self.gridLayout.addWidget(self.label, 0, 0, 1, 2)
-    MainWindow.setCentralWidget(self.centralwidget)
-    self.menubar = QtWidgets.QMenuBar(MainWindow)
-    self.menubar.setGeometry(QtCore.QRect(0, 0, 457, 21))
-    self.menubar.setObjectName("menubar")
-    MainWindow.setMenuBar(self.menubar)
-    self.statusbar = QtWidgets.QStatusBar(MainWindow)
-    self.statusbar.setObjectName("statusbar")
-    MainWindow.setStatusBar(self.statusbar)
-
-    self.retranslateOldOrdersUi(MainWindow)
-    QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateOldOrdersUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
 
-def retranslateOldOrdersUi(self, MainWindow):
-    _translate = QtCore.QCoreApplication.translate
-    MainWindow.setWindowTitle(_translate("MainWindow", "Фотоателье"))
-    self.label.setText(_translate("MainWindow", ""))
+    def retranslateOldOrdersUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "Фотоателье"))
+        self.label.setText(_translate("MainWindow", ""))
 
-    cnx, cursor = get_cnx_and_cursor()
+        cnx, cursor = get_cnx_and_cursor()
 
-    query = "select * from orders where closed_date is not null;"
-    cursor.execute(query)
+        query = "select * from orders where closed_date is not null;"
+        cursor.execute(query)
 
-    i = 1
-    j = 0
-
-    def worker(id):
-        query = 'select name from worker where idworker = %s'
-        data = (id,)
-        cursor.execute(query, data)
-
-        return cursor.fetchone()[0]
-
-    for item in cursor:
-        item_group = QtWidgets.QGroupBox("Заказ: " + str(item[0]))
-        categorieslayout = QtWidgets.QVBoxLayout(item_group)
-        self.gridLayout.addWidget(item_group, i, j, 1, 2)
-        item_group.clicked.connect(lambda: print(1))
-        for value in item:
-            if j == 0:
-                j += 1
-                id = value
-                continue
-            if j == 1:
-                categorieslayout.addWidget(QtWidgets.QLabel("Сотрудник " + str(worker(id))))
-            if j == 2:
-                categorieslayout.addWidget(QtWidgets.QLabel("Тип оплаты " + str(value)))
-            if j == 3:
-                categorieslayout.addWidget(QtWidgets.QLabel("Дата открытия " + str(value)))
-            if j == 4:
-                categorieslayout.addWidget(QtWidgets.QLabel("Дата закрытия " + str(value)))
-            j += 1
-        i += 1
+        i = 1
         j = 0
 
-    back_button = QtWidgets.QPushButton("Назад")
-    back_button.clicked.connect(self.setupUi)
-    self.gridLayout.addWidget(back_button, i, j, 1, 1)
+        def worker(id):
+            query = 'select name from worker where idworker = %s'
+            data = (id,)
+            cursor.execute(query, data)
+
+            return cursor.fetchone()[0]
+
+        for item in cursor:
+            item_group = QtWidgets.QGroupBox("Заказ: " + str(item[0]))
+            categorieslayout = QtWidgets.QVBoxLayout(item_group)
+            self.gridLayout.addWidget(item_group, i, j, 1, 2)
+            item_group.clicked.connect(lambda: print(1))
+            for value in item:
+                if j == 0:
+                    j += 1
+                    id = value
+                    continue
+                if j == 1:
+                    categorieslayout.addWidget(QtWidgets.QLabel("Сотрудник " + str(worker(id))))
+                if j == 2:
+                    categorieslayout.addWidget(QtWidgets.QLabel("Тип оплаты " + str(value)))
+                if j == 3:
+                    categorieslayout.addWidget(QtWidgets.QLabel("Дата открытия " + str(value)))
+                if j == 4:
+                    categorieslayout.addWidget(QtWidgets.QLabel("Дата закрытия " + str(value)))
+                j += 1
+            i += 1
+            j = 0
+
+        back_button = QtWidgets.QPushButton("Назад")
+        back_button.clicked.connect(self.setupUi)
+        self.gridLayout.addWidget(back_button, i, j, 1, 1)
 
 
 if __name__ == "__main__":
