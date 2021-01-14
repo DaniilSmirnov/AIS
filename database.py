@@ -1,7 +1,4 @@
-from PyQt5 import QtWidgets
-
 import mysql.connector
-from pymsgbox import alert
 from messaging import missed_db
 
 
